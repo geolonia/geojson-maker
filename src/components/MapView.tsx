@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import type maplibregl from 'maplibre-gl'
 import type { StyleSpecification } from 'maplibre-gl'
 import { useGeoloniaMap } from '../hooks/useGeoloniaMap'
-import { DrawMode, DrawModeSelector } from './DrawModeSelector'
+import { DrawMode } from './DrawModeSelector'
+import { DrawControlPanel } from './DrawControlPanel'
 import { GeoJSONPanel } from './GeoJSONPanel'
 
 export type FeatureCollection = GeoJSON.FeatureCollection
@@ -198,6 +199,8 @@ export const MapView: React.FC = () => {
     setDraftCoords([])
   }
 
+  const clearDraft = () => setDraftCoords([])
+
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <div
@@ -210,81 +213,17 @@ export const MapView: React.FC = () => {
         style={{ width: '100%', height: '100%' }}
       />
 
-      <div
-        style={{
-          position: 'absolute',
-          top: 12,
-          left: 12,
-          width: 280,
-          padding: 12,
-          borderRadius: 10,
-          background: 'rgba(255, 255, 255, 0.92)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-          zIndex: 2
-        }}
-      >
-        <div style={{ fontWeight: 600 }}>描画モード</div>
-        <DrawModeSelector selectedMode={drawMode} onChange={setDrawMode} />
-        <div style={{ fontSize: 13, color: '#2d2d2d' }}>{MODE_HELPERS[drawMode]}</div>
-        {isDrawingPath && (
-          <div
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              background: 'rgba(26, 115, 232, 0.08)',
-              border: '1px solid rgba(26, 115, 232, 0.3)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6
-            }}
-          >
-            <div style={{ fontSize: 13, fontWeight: 500 }}>
-              {draftCoords.length === 0
-                ? 'クリックで頂点を追加してください。'
-                : `${draftCoords.length} 点を記録中`}
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                type='button'
-                onClick={finalizeDraft}
-                disabled={!canFinalizeDraft}
-                style={{
-                  flex: 1,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: 'none',
-                  background: canFinalizeDraft ? '#1a73e8' : '#9fc3ff',
-                  color: '#fff',
-                  fontWeight: 600,
-                  cursor: canFinalizeDraft ? 'pointer' : 'not-allowed'
-                }}
-              >
-                確定
-              </button>
-              <button
-                type='button'
-                onClick={() => setDraftCoords([])}
-                style={{
-                  flex: 1,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: '1px solid rgba(0,0,0,0.2)',
-                  background: '#fff',
-                  color: '#111',
-                  fontWeight: 500,
-                  cursor: 'pointer'
-                }}
-              >
-                クリア
-              </button>
-            </div>
-          </div>
-        )}
-        <div style={{ fontSize: 12, color: '#555' }}>{`生成済みGeoJSON: ${features.features.length} 件`}</div>
-      </div>
+      <DrawControlPanel
+        drawMode={drawMode}
+        helperText={MODE_HELPERS[drawMode]}
+        isDrawingPath={isDrawingPath}
+        draftCount={draftCoords.length}
+        canFinalizeDraft={canFinalizeDraft}
+        onChangeMode={setDrawMode}
+        onFinalize={finalizeDraft}
+        onClearDraft={clearDraft}
+        featuresCount={features.features.length}
+      />
 
       <GeoJSONPanel featureCollection={features} />
     </div>
