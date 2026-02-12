@@ -5,7 +5,7 @@ import { useGeoloniaMap } from '../hooks/useGeoloniaMap'
 import { DrawMode } from './DrawModeSelector'
 import { DrawControlPanel } from './DrawControlPanel'
 import { GeoJSONPanel } from './GeoJSONPanel'
-import { createPointFeature, createPathFeature } from '../lib/geojson-helpers'
+import { createPointFeature, createPathFeature, createDraftFeatureCollection } from '../lib/geojson-helpers'
 
 export type FeatureCollection = GeoJSON.FeatureCollection
 
@@ -15,6 +15,10 @@ const POINT_LAYER_ID = 'geojson-maker-point-layer'
 const SYMBOL_LAYER_ID = 'geojson-maker-symbol-layer'
 const LINE_LAYER_ID = 'geojson-maker-line-layer'
 const POLYGON_LAYER_ID = 'geojson-maker-polygon-layer'
+const DRAFT_SOURCE_ID = 'geojson-maker-draft'
+const DRAFT_LINE_LAYER_ID = 'geojson-maker-draft-line'
+const DRAFT_POINT_LAYER_ID = 'geojson-maker-draft-point'
+const DRAFT_POLYGON_LAYER_ID = 'geojson-maker-draft-polygon'
 
 const MODE_HELPERS: Record<DrawMode, string> = {
   point: 'クリックした地点をポイントとして GeoJSON に追加します。',
@@ -104,12 +108,56 @@ export const MapView: React.FC = () => {
       }
     })
 
+    // ドラフトプレビュー用ソース＆レイヤー
+    const emptyFC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+    map.addSource(DRAFT_SOURCE_ID, { type: 'geojson', data: emptyFC })
+
+    map.addLayer({
+      id: DRAFT_POLYGON_LAYER_ID,
+      type: 'fill',
+      source: DRAFT_SOURCE_ID,
+      filter: ['==', ['geometry-type'], 'Polygon'],
+      paint: {
+        'fill-color': '#e86a4a',
+        'fill-opacity': 0.1
+      }
+    })
+
+    map.addLayer({
+      id: DRAFT_LINE_LAYER_ID,
+      type: 'line',
+      source: DRAFT_SOURCE_ID,
+      filter: ['==', ['geometry-type'], 'LineString'],
+      paint: {
+        'line-color': '#e86a4a',
+        'line-width': 2,
+        'line-dasharray': [4, 4]
+      }
+    })
+
+    map.addLayer({
+      id: DRAFT_POINT_LAYER_ID,
+      type: 'circle',
+      source: DRAFT_SOURCE_ID,
+      filter: ['==', ['geometry-type'], 'Point'],
+      paint: {
+        'circle-radius': 4,
+        'circle-color': '#e86a4a',
+        'circle-stroke-color': '#fff',
+        'circle-stroke-width': 1.5
+      }
+    })
+
     return () => {
-      ;[SYMBOL_LAYER_ID, POINT_LAYER_ID, LINE_LAYER_ID, POLYGON_LAYER_ID].forEach((layerId) => {
+      ;[DRAFT_POINT_LAYER_ID, DRAFT_LINE_LAYER_ID, DRAFT_POLYGON_LAYER_ID,
+        SYMBOL_LAYER_ID, POINT_LAYER_ID, LINE_LAYER_ID, POLYGON_LAYER_ID].forEach((layerId) => {
         if (map.getLayer(layerId)) {
           map.removeLayer(layerId)
         }
       })
+      if (map.getSource(DRAFT_SOURCE_ID)) {
+        map.removeSource(DRAFT_SOURCE_ID)
+      }
       const source = map.getSource(SOURCE_ID)
       if (source) {
         map.removeSource(SOURCE_ID)
@@ -146,6 +194,18 @@ export const MapView: React.FC = () => {
     if (!source || typeof source.setData !== 'function') return
     source.setData(features)
   }, [map, features])
+
+  useEffect(() => {
+    if (!map) return
+    const source = map.getSource(DRAFT_SOURCE_ID) as maplibregl.GeoJSONSource | undefined
+    if (!source || typeof source.setData !== 'function') return
+    const emptyFC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+    if (isDrawingPath && draftCoords.length >= 1) {
+      source.setData(createDraftFeatureCollection(draftCoords, drawMode as PathMode))
+    } else {
+      source.setData(emptyFC)
+    }
+  }, [map, draftCoords, drawMode, isDrawingPath])
 
   const finalizeDraft = () => {
     if (!isDrawingPath || !canFinalizeDraft) return

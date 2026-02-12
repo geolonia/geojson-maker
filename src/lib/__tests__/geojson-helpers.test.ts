@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { closePolygonRing, createPointFeature, createPathFeature } from '../geojson-helpers'
+import { closePolygonRing, createPointFeature, createPathFeature, createDraftFeatureCollection } from '../geojson-helpers'
 
 describe('closePolygonRing', () => {
   it('空配列を渡すと空配列を返す', () => {
@@ -107,5 +107,56 @@ describe('createPathFeature', () => {
         drawMode: 'polygon',
       },
     })
+  })
+})
+
+describe('createDraftFeatureCollection', () => {
+  it('空座標で空の FeatureCollection を返す', () => {
+    const result = createDraftFeatureCollection([], 'line')
+    expect(result).toEqual({ type: 'FeatureCollection', features: [] })
+  })
+
+  it('1点で Point のみを返す', () => {
+    const result = createDraftFeatureCollection([[0, 0]], 'line')
+    expect(result.features).toHaveLength(1)
+    expect(result.features[0].geometry).toEqual({ type: 'Point', coordinates: [0, 0] })
+  })
+
+  it('2点(line) で LineString + 2 Points を返す', () => {
+    const result = createDraftFeatureCollection([[0, 0], [1, 1]], 'line')
+    expect(result.features).toHaveLength(3)
+    const types = result.features.map((f) => f.geometry.type)
+    expect(types.filter((t) => t === 'Point')).toHaveLength(2)
+    expect(types.filter((t) => t === 'LineString')).toHaveLength(1)
+  })
+
+  it('2点(polygon) で LineString + 2 Points を返す（3点未満のため）', () => {
+    const result = createDraftFeatureCollection([[0, 0], [1, 0]], 'polygon')
+    expect(result.features).toHaveLength(3)
+    const types = result.features.map((f) => f.geometry.type)
+    expect(types.filter((t) => t === 'Point')).toHaveLength(2)
+    expect(types.filter((t) => t === 'LineString')).toHaveLength(1)
+  })
+
+  it('3点(line) で LineString + 3 Points を返す', () => {
+    const result = createDraftFeatureCollection([[0, 0], [1, 0], [1, 1]], 'line')
+    expect(result.features).toHaveLength(4)
+    const types = result.features.map((f) => f.geometry.type)
+    expect(types.filter((t) => t === 'Point')).toHaveLength(3)
+    expect(types.filter((t) => t === 'LineString')).toHaveLength(1)
+  })
+
+  it('3点(polygon) で Polygon + LineString + 3 Points を返す', () => {
+    const result = createDraftFeatureCollection([[0, 0], [1, 0], [1, 1]], 'polygon')
+    expect(result.features).toHaveLength(5)
+    const types = result.features.map((f) => f.geometry.type)
+    expect(types.filter((t) => t === 'Point')).toHaveLength(3)
+    expect(types.filter((t) => t === 'Polygon')).toHaveLength(1)
+    expect(types.filter((t) => t === 'LineString')).toHaveLength(1)
+
+    // ポリゴンリングが閉じている
+    const polygon = result.features.find((f) => f.geometry.type === 'Polygon')!
+    const ring = (polygon.geometry as GeoJSON.Polygon).coordinates[0]
+    expect(ring[0]).toEqual(ring[ring.length - 1])
   })
 })
