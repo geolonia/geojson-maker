@@ -23,6 +23,52 @@ export function createPointFeature(coordinate: [number, number], mode: DrawMode)
   }
 }
 
+export function createDraftFeatureCollection(
+  coords: [number, number][],
+  mode: PathMode
+): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = []
+
+  if (coords.length === 0) {
+    return { type: 'FeatureCollection', features }
+  }
+
+  // 頂点を Point として追加
+  for (const coord of coords) {
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: coord },
+      properties: {}
+    })
+  }
+
+  if (coords.length >= 2) {
+    // ポリゴンモードで3点以上なら Polygon + 外周 LineString
+    if (mode === 'polygon' && coords.length >= 3) {
+      const closed = closePolygonRing(coords)
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [closed] },
+        properties: {}
+      })
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: closed },
+        properties: {}
+      })
+    } else {
+      // ライン、またはポリゴンで3点未満
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: coords },
+        properties: {}
+      })
+    }
+  }
+
+  return { type: 'FeatureCollection', features }
+}
+
 export function createPathFeature(vertices: [number, number][], mode: PathMode): GeoJSON.Feature {
   const geometry: GeoJSON.LineString | GeoJSON.Polygon =
     mode === 'line'
