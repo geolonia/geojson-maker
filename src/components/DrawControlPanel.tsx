@@ -4,55 +4,50 @@ import './DrawControlPanel.css'
 type DrawControlPanelProps = {
   drawMode: DrawMode
   isDrawingPath: boolean
-  draftCount: number
   canFinalizeDraft: boolean
+  hasSelectedFeature: boolean
   onChangeMode: (mode: DrawMode) => void
   onFinalize: () => void
-  onClearDraft: () => void
-  featuresCount: number
+  onDeleteFeature: () => void
 }
 
 export function DrawControlPanel({
   drawMode,
   isDrawingPath,
-  draftCount,
   canFinalizeDraft,
+  hasSelectedFeature,
   onChangeMode,
   onFinalize,
-  onClearDraft,
-  featuresCount
+  onDeleteFeature,
 }: DrawControlPanelProps) {
   return (
     <div className='draw-control-panel'>
-      <div className='draw-control-panel__header'>描画モード</div>
       <DrawModeSelector selectedMode={drawMode} onChange={onChangeMode} />
+      <button
+        type='button'
+        onClick={onDeleteFeature}
+        disabled={!hasSelectedFeature}
+        title='追加した地物をクリックして削除'
+        className={`draw-control-panel__action-button draw-control-panel__action-button--delete${hasSelectedFeature ? '' : ' draw-control-panel__action-button--disabled'}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+      </button>
       {isDrawingPath && (
-        <div className='draw-control-panel__draft'>
-          <div className='draw-control-panel__draft-text'>
-            {draftCount === 0 ? 'クリックで頂点を追加してください。' : `${draftCount} 点を記録中`}
-          </div>
-          <div className='draw-control-panel__draft-actions'>
-            <button
-              type='button'
-              onClick={onFinalize}
-              disabled={!canFinalizeDraft}
-              className={`draw-control-panel__draft-button${canFinalizeDraft ? '' : ' draw-control-panel__draft-button--disabled'}`}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              確定
-            </button>
-            <button
-              type='button'
-              onClick={onClearDraft}
-              className='draw-control-panel__clear-button'
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              クリア
-            </button>
-          </div>
-        </div>
+        <button
+          type='button'
+          onClick={onFinalize}
+          disabled={!canFinalizeDraft}
+          title='ドラフトを確定'
+          className={`draw-control-panel__action-button draw-control-panel__action-button--confirm${canFinalizeDraft ? '' : ' draw-control-panel__action-button--disabled'}`}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </button>
       )}
-      <div className='draw-control-panel__count'>{`生成済みGeoJSON: ${featuresCount} 件`}</div>
     </div>
   )
 }

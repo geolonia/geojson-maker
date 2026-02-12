@@ -11,11 +11,8 @@ export const modeButtonSelector = (dataMode: string) =>
 
 /** 描画コントロールパネル */
 export const DRAW_CONTROL_PANEL = '.draw-control-panel'
-export const DRAFT_SECTION = '.draw-control-panel__draft'
-export const DRAFT_TEXT = '.draw-control-panel__draft-text'
-export const DRAFT_BUTTON = '.draw-control-panel__draft-button'
-export const CLEAR_BUTTON = '.draw-control-panel__clear-button'
-export const FEATURES_COUNT = '.draw-control-panel__count'
+export const DELETE_ACTION_BUTTON = '.draw-control-panel__action-button--delete'
+export const CONFIRM_ACTION_BUTTON = '.draw-control-panel__action-button--confirm'
 
 /** GeoJSON パネル */
 export const GEOJSON_PANEL = '.geojson-panel'

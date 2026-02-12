@@ -2,7 +2,8 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  width: auto;
+  width: 68px;
+  box-sizing: border-box;
   padding: 12px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
@@ -15,76 +16,44 @@
   z-index: 2;
 }
 
-.draw-control-panel__header {
-  font-weight: 600;
-  color: #444;
-}
-
-.draw-control-panel__draft {
+.draw-control-panel__action-button {
   padding: 8px;
   border-radius: 8px;
-  background: rgba(26, 115, 232, 0.08);
-  border: 1px solid rgba(26, 115, 232, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.draw-control-panel__draft-text {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.draw-control-panel__draft-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.draw-control-panel__draft-button,
-.draw-control-panel__clear-button {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.draw-control-panel__draft-button {
-  background: linear-gradient(135deg, #1a73e8, #1567d3);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
-}
-
-.draw-control-panel__draft-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #3b87ed, #1a73e8);
-  box-shadow: 0 3px 8px rgba(26, 115, 232, 0.4);
-}
-
-.draw-control-panel__draft-button--disabled {
-  background: #9fc3ff;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.draw-control-panel__clear-button {
   border: 1px solid rgba(0, 0, 0, 0.2);
   background: #fff;
   color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.15s ease;
 }
 
-.draw-control-panel__clear-button:hover {
+.draw-control-panel__action-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.draw-control-panel__action-button--delete:hover:not(:disabled) {
   background: #fef2f2;
   border-color: #e86a4a;
   color: #c0392b;
 }
 
-.draw-control-panel__count {
-  font-size: 12px;
-  color: #555;
+.draw-control-panel__action-button--confirm {
+  background: linear-gradient(135deg, #1a73e8, #1567d3);
+  color: #fff;
+  border-color: #1a73e8;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+.draw-control-panel__action-button--confirm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3b87ed, #1a73e8);
+  box-shadow: 0 3px 8px rgba(26, 115, 232, 0.4);
+}
+
+.draw-control-panel__action-button--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
