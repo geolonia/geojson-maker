@@ -1,6 +1,6 @@
 .draw-mode-selector {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 6px;
 }
 
