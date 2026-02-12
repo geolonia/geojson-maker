@@ -4,7 +4,7 @@ import { CustomWorld } from '../support/world.js'
 import {
   MODE_BUTTON_SELECTED,
   modeButtonSelector,
-  DRAFT_SECTION,
+  DELETE_ACTION_BUTTON,
 } from '../support/helpers/selectors.js'
 
 /** 日本語モード名 → data-mode 値 */
@@ -49,6 +49,6 @@ Then('選択中のモードが {string} である', async function (this: Custom
   await expect(selected).toHaveAttribute('data-mode', dataMode)
 })
 
-Then('ドラフトセクションが表示される', async function (this: CustomWorld) {
-  await expect(this.page.locator(DRAFT_SECTION)).toBeVisible()
+Then('アクションボタンが表示される', async function (this: CustomWorld) {
+  await expect(this.page.locator(DELETE_ACTION_BUTTON)).toBeVisible()
 })
