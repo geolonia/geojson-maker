@@ -1,11 +1,42 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #1a73e8 0%, #7c3aed 100%);
+  --gradient-primary-soft: linear-gradient(135deg, rgba(26, 115, 232, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+  --gradient-confirm: linear-gradient(135deg, #1a73e8 0%, #6d28d9 50%, #7c3aed 100%);
+
+  /* Glass */
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-blur: 16px;
+  --glass-blur-strong: 24px;
+
+  /* Glow shadows */
+  --glow-confirm: 0 4px 20px rgba(26, 115, 232, 0.35), 0 0 30px rgba(124, 58, 237, 0.2);
+
+  /* Dark code editor */
+  --code-bg: #1e1e2e;
+  --code-text: #cdd6f4;
+  --code-border: rgba(124, 58, 237, 0.3);
+  --code-scrollbar-thumb: rgba(124, 58, 237, 0.4);
+  --code-scrollbar-track: rgba(30, 30, 46, 0.5);
+
+  /* Semantic colors */
+  --color-blue: #1a73e8;
+  --color-purple: #7c3aed;
+  --color-danger: #ef4444;
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-code: 'IBM Plex Mono', 'Fira Code', Menlo, monospace;
+
+  font-family: var(--font-ui);
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #1e293b;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,11 +63,6 @@ body {
   min-width: 320px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -44,27 +70,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background: transparent;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  transition: all var(--transition-normal);
 }
