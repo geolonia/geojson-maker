@@ -40,6 +40,7 @@ BeforeAll({ timeout: 60000 }, async function () {
     cwd: process.cwd(),
     stdio: 'pipe',
     shell: true,
+    detached: true,
   })
 
   // サーバが応答するまでポーリング
@@ -79,8 +80,13 @@ BeforeAll({ timeout: 60000 }, async function () {
  */
 AfterAll(async function () {
   await sharedBrowser?.close()
-  if (viteProcess) {
-    viteProcess.kill('SIGTERM')
+  if (viteProcess?.pid) {
+    try {
+      // detached プロセスグループごと終了（sh → npx → vite すべて）
+      process.kill(-viteProcess.pid, 'SIGTERM')
+    } catch {
+      // プロセスが既に終了している場合
+    }
   }
 })
 
