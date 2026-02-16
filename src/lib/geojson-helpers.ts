@@ -4,7 +4,7 @@ type PathMode = Extract<DrawMode, 'line' | 'polygon'>
 
 let featureIdCounter = 0
 export function nextFeatureId(): string {
-  return `f-${++featureIdCounter}`
+  return `geolonia-${++featureIdCounter}`
 }
 
 export function closePolygonRing(vertices: [number, number][]): [number, number][] {
@@ -22,10 +22,10 @@ export function createPointFeature(coordinate: [number, number], mode: DrawMode)
       type: 'Point',
       coordinates: coordinate
     },
-    properties: {
-      _id: nextFeatureId(),
-      drawMode: mode
-    }
+    properties: Object.assign(
+      { _id: nextFeatureId() },
+      mode === 'symbol' ? { drawMode: mode } : undefined
+    )
   }
 }
 

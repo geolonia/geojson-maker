@@ -115,7 +115,7 @@ export const MapView: React.FC = () => {
       id: POINT_LAYER_ID,
       type: 'circle',
       source: SOURCE_ID,
-      filter: ['all', ['==', ['geometry-type'], 'Point'], ['==', ['get', 'drawMode'], 'point']],
+      filter: ['all', ['==', ['geometry-type'], 'Point'], ['!', ['==', ['get', 'drawMode'], 'symbol']]],
       paint: {
         'circle-radius': 5,
         'circle-color': '#1a73e8',
