@@ -12,7 +12,7 @@ import { mergeUserProperties } from '../lib/property-helpers'
 
 export type FeatureCollection = GeoJSON.FeatureCollection
 
-const MAP_STYLE = 'https://smartmap.styles.geoloniamaps.com/style.json'
+const MAP_STYLE = 'geolonia/basic'
 const SOURCE_ID = 'geojson-maker-generated-features'
 const POINT_LAYER_ID = 'geojson-maker-point-layer'
 const SYMBOL_LAYER_ID = 'geojson-maker-symbol-layer'
