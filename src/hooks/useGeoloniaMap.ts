@@ -34,12 +34,21 @@ export function useGeoloniaMap(
     const center = map?.getCenter() || [139.767, 35.681] as [number, number];
     const zoom = map?.getZoom() || 10;
 
-    const MapConstructor = window.geolonia?.Map ?? maplibregl.Map;
+    const useGeolonia = !!window.geolonia?.Map;
+    const MapConstructor = useGeolonia ? window.geolonia.Map : maplibregl.Map;
+
+    // Geolonia Embed がない環境（E2E等）では geolonia/* スタイルを解決できないため空スタイルにフォールバック
+    const resolvedStyle = (!useGeolonia && typeof options.style === 'string' && options.style.startsWith('geolonia/'))
+      ? { version: 8 as const, sources: {}, layers: [{ id: 'background', type: 'background' as const, paint: { 'background-color': '#f0f0f0' } }] } satisfies StyleSpecification
+      : options.style;
+
     const mapObj = new MapConstructor({
       container: containerRef.current,
-      style: options.style,
-      center: center,
-      zoom: zoom,
+      style: resolvedStyle,
+      center: options.center ?? center,
+      zoom: options.zoom ?? zoom,
+      minZoom: options.minZoom,
+      maxZoom: options.maxZoom,
       hash: true,
       attributionControl: false,
     });
