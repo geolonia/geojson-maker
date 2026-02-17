@@ -5,8 +5,9 @@ import { useGeoloniaMap } from '../hooks/useGeoloniaMap'
 import { DrawMode } from './DrawModeSelector'
 import { DrawControlPanel } from './DrawControlPanel'
 import { GeoJSONPanel } from './GeoJSONPanel'
-import { createPointFeature, createPathFeature, createDraftFeatureCollection } from '../lib/geojson-helpers'
+import { createPointFeature, createPathFeature, createDraftFeatureCollection, nextFeatureId } from '../lib/geojson-helpers'
 import { getFeatureCenter } from '../lib/feature-center'
+import { parseCSV } from '../lib/csv-helpers'
 
 export type FeatureCollection = GeoJSON.FeatureCollection
 
@@ -336,6 +337,19 @@ export const MapView: React.FC = () => {
     })
   }, [features, map, flashHighlight])
 
+  const handleImportCSV = useCallback((text: string) => {
+    const rows = parseCSV(text)
+    const newFeatures: GeoJSON.Feature[] = rows.map((row) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [row.lng, row.lat] },
+      properties: { _id: nextFeatureId(), drawMode: 'point', ...row.properties },
+    }))
+    setFeatures((prev) => ({
+      ...prev,
+      features: [...prev.features, ...newFeatures],
+    }))
+  }, [])
+
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <div
@@ -363,6 +377,7 @@ export const MapView: React.FC = () => {
         featureCollection={features}
         highlightedFeatureId={highlightedPanelFeatureId}
         onFeatureClick={handlePanelFeatureClick}
+        onImportCSV={handleImportCSV}
       />
     </div>
   )

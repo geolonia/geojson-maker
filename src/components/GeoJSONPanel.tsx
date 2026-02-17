@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './GeoJSONPanel.css'
 
 const GEOM_TYPE_LABEL: Record<string, string> = {
@@ -11,13 +11,16 @@ type GeoJSONPanelProps = {
   featureCollection: GeoJSON.FeatureCollection
   highlightedFeatureId: string | null
   onFeatureClick: (featureId: string) => void
+  onImportCSV: (text: string) => void
 }
 
-export function GeoJSONPanel({ featureCollection, highlightedFeatureId, onFeatureClick }: GeoJSONPanelProps) {
+export function GeoJSONPanel({ featureCollection, highlightedFeatureId, onFeatureClick, onImportCSV }: GeoJSONPanelProps) {
   const jsonValue = useMemo(() => JSON.stringify(featureCollection, null, 2), [featureCollection])
   const [copied, setCopied] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
+  const [imported, setImported] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ハイライトされたフィーチャへスクロール
   useEffect(() => {
@@ -40,6 +43,21 @@ export function GeoJSONPanel({ featureCollection, highlightedFeatureId, onFeatur
       console.error('GeoJSON のコピーに失敗しました', error)
     }
   }
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = reader.result as string
+      onImportCSV(text)
+      setImported(true)
+      setTimeout(() => setImported(false), 1600)
+    }
+    reader.readAsText(file)
+    // 同じファイルを再選択できるようにリセット
+    e.target.value = ''
+  }, [onImportCSV])
 
   const downloadGeoJSON = () => {
     const blob = new Blob([jsonValue], { type: 'application/geo+json' })
@@ -106,6 +124,20 @@ export function GeoJSONPanel({ featureCollection, highlightedFeatureId, onFeatur
             className={`geojson-panel__button${downloaded ? ' downloaded' : ''}`}
         >
             {downloaded ? 'ダウンロード完了' : 'geojsonをダウンロード'}
+        </button>
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='.csv'
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+        <button
+            type='button'
+            onClick={() => fileInputRef.current?.click()}
+            className={`geojson-panel__button${imported ? ' imported' : ''}`}
+        >
+            {imported ? 'インポート完了' : 'CSVをインポート'}
         </button>
       </div>
     </div>
