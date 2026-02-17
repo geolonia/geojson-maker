@@ -23,6 +23,10 @@ export const GEOJSON_PANEL_BUTTON = '.geojson-panel__button'
 export const GEOJSON_FEATURE_ITEM = '.geojson-panel__feature-item'
 export const GEOJSON_FEATURE_ITEM_HIGHLIGHTED = '.geojson-panel__feature-item--highlighted'
 
+/** インポート */
+export const IMPORT_ACTION_BUTTON = '.draw-control-panel__action-button--import'
+export const IMPORT_POPUP_BTN = '.draw-control-panel__import-popup-btn'
+
 /** プロパティエディタ */
 export const FEATURE_PROPS_EDITOR = '[data-testid="feature-props-editor"]'
 export const PROP_KEY_INPUT = '[data-testid="prop-key-input"]'

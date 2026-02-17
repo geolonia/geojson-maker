@@ -75,6 +75,37 @@ export function createDraftFeatureCollection(
   return { type: 'FeatureCollection', features }
 }
 
+function inferDrawMode(geometryType: string): string {
+  switch (geometryType) {
+    case 'Point': return 'point'
+    case 'LineString': return 'line'
+    case 'Polygon': return 'polygon'
+    default: return 'point'
+  }
+}
+
+export function parseGeoJSONImport(text: string): GeoJSON.Feature[] {
+  const parsed = JSON.parse(text)
+  let features: GeoJSON.Feature[]
+
+  if (parsed.type === 'FeatureCollection' && Array.isArray(parsed.features)) {
+    features = parsed.features
+  } else if (parsed.type === 'Feature') {
+    features = [parsed]
+  } else {
+    throw new Error('GeoJSON の形式が正しくありません')
+  }
+
+  return features.map((f) => ({
+    ...f,
+    properties: {
+      ...f.properties,
+      _id: nextFeatureId(),
+      drawMode: f.properties?.drawMode ?? inferDrawMode(f.geometry.type),
+    },
+  }))
+}
+
 export function createPathFeature(vertices: [number, number][], mode: PathMode): GeoJSON.Feature {
   const geometry: GeoJSON.LineString | GeoJSON.Polygon =
     mode === 'line'

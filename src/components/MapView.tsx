@@ -361,6 +361,24 @@ export const MapView: React.FC = () => {
     }))
   }, [])
 
+  const handleImportGeoJSON = useCallback((importedFeatures: GeoJSON.Feature[], mode: 'replace' | 'merge') => {
+    if (mode === 'replace') {
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current)
+        highlightTimerRef.current = null
+      }
+      setFeatures({ type: 'FeatureCollection', features: importedFeatures })
+      setDraftCoords([])
+      setSelectedFeatureId(null)
+      setHighlightedPanelFeatureId(null)
+    } else {
+      setFeatures((prev) => ({
+        ...prev,
+        features: [...prev.features, ...importedFeatures],
+      }))
+    }
+  }, [])
+
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <div
@@ -382,13 +400,14 @@ export const MapView: React.FC = () => {
         onFinalize={finalizeDraft}
         onDeleteFeature={deleteSelectedFeature}
         onResetGeoJSON={resetGeoJSON}
+        onImportCSV={handleImportCSV}
+        onImportGeoJSON={handleImportGeoJSON}
       />
 
       <GeoJSONPanel
         featureCollection={features}
         highlightedFeatureId={highlightedPanelFeatureId}
         onFeatureClick={handlePanelFeatureClick}
-        onImportCSV={handleImportCSV}
         onUpdateFeatureProperties={updateFeatureProperties}
       />
     </div>
