@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { closePolygonRing, createPointFeature, createPathFeature, createDraftFeatureCollection } from '../geojson-helpers'
+import { closePolygonRing, createPointFeature, createPathFeature, createDraftFeatureCollection, parseGeoJSONImport } from '../geojson-helpers'
 
 // _id のカウンターはモジュールレベルなので、各テストで expect.stringMatching で検証
 const ID_PATTERN = expect.stringMatching(/^geolonia-\d+$/)
@@ -113,6 +113,66 @@ describe('createPathFeature', () => {
         drawMode: 'polygon',
       },
     })
+  })
+})
+
+describe('parseGeoJSONImport', () => {
+  it('FeatureCollection をパースしてフィーチャ配列を返す', () => {
+    const input = JSON.stringify({
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [139, 35] }, properties: { name: 'test' } },
+      ],
+    })
+    const result = parseGeoJSONImport(input)
+    expect(result).toHaveLength(1)
+    expect(result[0].properties).toEqual({
+      name: 'test',
+      _id: ID_PATTERN,
+      drawMode: 'point',
+    })
+  })
+
+  it('単一 Feature をパースして配列に包む', () => {
+    const input = JSON.stringify({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1]] },
+      properties: {},
+    })
+    const result = parseGeoJSONImport(input)
+    expect(result).toHaveLength(1)
+    expect(result[0].properties).toEqual({
+      _id: ID_PATTERN,
+      drawMode: 'line',
+    })
+  })
+
+  it('既存の drawMode を保持する', () => {
+    const input = JSON.stringify({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { drawMode: 'symbol' },
+    })
+    const result = parseGeoJSONImport(input)
+    expect(result[0].properties?.drawMode).toBe('symbol')
+  })
+
+  it('Polygon のジオメトリタイプから drawMode を推測する', () => {
+    const input = JSON.stringify({
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+      properties: {},
+    })
+    const result = parseGeoJSONImport(input)
+    expect(result[0].properties?.drawMode).toBe('polygon')
+  })
+
+  it('不正な JSON でエラーを投げる', () => {
+    expect(() => parseGeoJSONImport('not json')).toThrow()
+  })
+
+  it('GeoJSON でないオブジェクトでエラーを投げる', () => {
+    expect(() => parseGeoJSONImport('{"foo": "bar"}')).toThrow('GeoJSON の形式が正しくありません')
   })
 })
 

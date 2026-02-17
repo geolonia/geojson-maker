@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DrawMode, DrawModeSelector } from './DrawModeSelector'
 import { clampPosition } from '../lib/clamp-position'
+import { parseGeoJSONImport } from '../lib/geojson-helpers'
 import './DrawControlPanel.css'
 
 type DrawControlPanelProps = {
@@ -12,6 +13,8 @@ type DrawControlPanelProps = {
   onFinalize: () => void
   onDeleteFeature: () => void
   onResetGeoJSON: () => void
+  onImportCSV: (text: string) => void
+  onImportGeoJSON: (features: GeoJSON.Feature[], mode: 'replace' | 'merge') => void
 }
 
 const INITIAL_POSITION = { x: 10, y: 10 }
@@ -25,11 +28,16 @@ export function DrawControlPanel({
   onFinalize,
   onDeleteFeature,
   onResetGeoJSON,
+  onImportCSV,
+  onImportGeoJSON,
 }: DrawControlPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState(INITIAL_POSITION)
   const isDraggingRef = useRef(false)
   const dragOffsetRef = useRef({ x: 0, y: 0 })
+  const [isImportHovered, setIsImportHovered] = useState(false)
+  const csvFileInputRef = useRef<HTMLInputElement>(null)
+  const geojsonFileInputRef = useRef<HTMLInputElement>(null)
 
   const onGripMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -67,6 +75,34 @@ export function DrawControlPanel({
       window.removeEventListener('mouseup', onMouseUp)
     }
   }, [])
+
+  const handleCSVFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      onImportCSV(reader.result as string)
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }, [onImportCSV])
+
+  const handleGeoJSONFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const features = parseGeoJSONImport(reader.result as string)
+        const replace = window.confirm('既存のフィーチャを置き換えますか？\n「OK」→ 置換\n「キャンセル」→ マージ（追加）')
+        onImportGeoJSON(features, replace ? 'replace' : 'merge')
+      } catch (err) {
+        console.error('GeoJSON のインポートに失敗しました', err)
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }, [onImportGeoJSON])
 
   return (
     <div
@@ -114,6 +150,44 @@ export function DrawControlPanel({
           <path d="M12 4v6" />
         </svg>
       </button>
+      <div
+        className='draw-control-panel__import-wrapper'
+        onMouseEnter={() => setIsImportHovered(true)}
+        onMouseLeave={() => setIsImportHovered(false)}
+      >
+        <button
+          type='button'
+          title='インポート'
+          aria-label='インポート'
+          className='draw-control-panel__action-button draw-control-panel__action-button--import'
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </button>
+        {isImportHovered && (
+          <div className='draw-control-panel__import-popup'>
+            <button
+              type='button'
+              className='draw-control-panel__import-popup-btn'
+              onClick={() => csvFileInputRef.current?.click()}
+            >
+              CSVインポート
+            </button>
+            <button
+              type='button'
+              className='draw-control-panel__import-popup-btn'
+              onClick={() => geojsonFileInputRef.current?.click()}
+            >
+              GeoJSONインポート
+            </button>
+          </div>
+        )}
+      </div>
+      <input ref={csvFileInputRef} type='file' accept='.csv' onChange={handleCSVFileChange} style={{ display: 'none' }} />
+      <input ref={geojsonFileInputRef} type='file' accept='.geojson,.json' onChange={handleGeoJSONFileChange} style={{ display: 'none' }} />
       {isDrawingPath && (
         <button
           type='button'
