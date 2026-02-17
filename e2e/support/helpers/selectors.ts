@@ -31,6 +31,12 @@ export const FEATURE_CONTEXT_MENU_ITEM = '.feature-context-menu__item'
 export const IMPORT_ACTION_BUTTON = '.draw-control-panel__action-button--import'
 export const IMPORT_POPUP_BTN = '.draw-control-panel__import-popup-btn'
 
+/** 住所検索バー */
+export const ADDRESS_SEARCH_BAR = '.address-search-bar'
+export const ADDRESS_SEARCH_INPUT = '.address-search-bar__input'
+export const ADDRESS_SEARCH_BUTTON = '.address-search-bar__button'
+export const ADDRESS_SEARCH_ERROR = '.address-search-bar__error'
+
 /** プロパティエディタ */
 export const FEATURE_PROPS_EDITOR = '[data-testid="feature-props-editor"]'
 export const PROP_KEY_INPUT = '[data-testid="prop-key-input"]'

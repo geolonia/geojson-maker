@@ -6,6 +6,7 @@ import { DrawMode } from './DrawModeSelector'
 import { DrawControlPanel } from './DrawControlPanel'
 import { GeoJSONPanel } from './GeoJSONPanel'
 import { FeatureContextMenu } from './FeatureContextMenu'
+import { AddressSearchBar } from './AddressSearchBar'
 import { createPointFeature, createPathFeature, createDraftFeatureCollection, nextFeatureId } from '../lib/geojson-helpers'
 import { getFeatureCenter } from '../lib/feature-center'
 import { parseCSV } from '../lib/csv-helpers'
@@ -389,6 +390,11 @@ export const MapView: React.FC = () => {
     }))
   }, [])
 
+  const handleAddressSearch = useCallback((lat: number, lng: number) => {
+    if (!map) return
+    map.flyTo({ center: [lng, lat], zoom: 16 })
+  }, [map])
+
   const handleImportGeoJSON = useCallback((importedFeatures: GeoJSON.Feature[], mode: 'replace' | 'merge') => {
     if (mode === 'replace') {
       if (highlightTimerRef.current) {
@@ -418,6 +424,8 @@ export const MapView: React.FC = () => {
         data-scale-control='on'
         style={{ width: '100%', height: '100%' }}
       />
+
+      <AddressSearchBar onSearch={handleAddressSearch} />
 
       <DrawControlPanel
         drawMode={drawMode}
