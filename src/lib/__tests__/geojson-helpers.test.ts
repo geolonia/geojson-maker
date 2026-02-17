@@ -54,6 +54,7 @@ describe('createPointFeature', () => {
       },
       properties: {
         _id: ID_PATTERN,
+        drawMode: 'point',
       },
     })
   })

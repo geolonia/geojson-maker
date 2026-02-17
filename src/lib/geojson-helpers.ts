@@ -22,10 +22,10 @@ export function createPointFeature(coordinate: [number, number], mode: DrawMode)
       type: 'Point',
       coordinates: coordinate
     },
-    properties: Object.assign(
-      { _id: nextFeatureId() },
-      mode === 'symbol' ? { drawMode: mode } : undefined
-    )
+    properties: {
+      _id: nextFeatureId(),
+      drawMode: mode
+    }
   }
 }
 

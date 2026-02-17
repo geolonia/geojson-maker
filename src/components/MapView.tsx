@@ -319,6 +319,17 @@ export const MapView: React.FC = () => {
     }))
   }, [])
 
+  const resetGeoJSON = useCallback(() => {
+    if (highlightTimerRef.current) {
+      clearTimeout(highlightTimerRef.current)
+      highlightTimerRef.current = null
+    }
+    setFeatures({ type: 'FeatureCollection', features: [] })
+    setDraftCoords([])
+    setSelectedFeatureId(null)
+    setHighlightedPanelFeatureId(null)
+  }, [])
+
   // パネルからフィーチャクリック → 地図中心移動 + ハイライト
   const handlePanelFeatureClick = useCallback((featureId: string) => {
     const feature = features.features.find((f) => f.properties?._id === featureId)
@@ -356,6 +367,7 @@ export const MapView: React.FC = () => {
         onChangeMode={setDrawMode}
         onFinalize={finalizeDraft}
         onDeleteFeature={deleteSelectedFeature}
+        onResetGeoJSON={resetGeoJSON}
       />
 
       <GeoJSONPanel
