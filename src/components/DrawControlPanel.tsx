@@ -178,6 +178,7 @@ export function DrawControlPanel({
           <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
         </svg>
       </button>
+      <div className='draw-control-panel__separator' />
       <div
         className='draw-control-panel__import-wrapper'
         onMouseEnter={handleImportMouseEnter}
