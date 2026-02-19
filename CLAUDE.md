@@ -88,3 +88,16 @@ React + TypeScript + Vite。
 | `geojson-maker-generated-features` | 確定済みフィーチャ |
 | `geojson-maker-draft` | ドラフトプレビュー |
 | `geojson-maker-highlight` | 選択ハイライト |
+
+# Global Rules
+
+- Do NOT include `Co-Authored-By` lines in commit messages.
+- Do NOT open pull requests unless explicitly instructed to do so.
+- **Always work in a git worktree** — never work directly in the main worktree. Create a new worktree under `.worktrees/` before making any changes:
+  ```bash
+  git worktree add .worktrees/<repo>-<branch-name> -b <branch-name>
+  cd .worktrees/<repo>-<branch-name>
+  ```
+- **Always verify CI passes before pushing** — run lint, build, and tests before `git push`.
+- **Never push directly to main/master** — always work on a feature branch and push that branch.
+- **Run `npm install` after creating a worktree** — worktrees do not share `node_modules`.
