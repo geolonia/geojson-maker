@@ -2,7 +2,7 @@ import { When, Then } from '@cucumber/cucumber'
 import { expect } from '@playwright/test'
 import { CustomWorld } from '../support/world.js'
 import { rightClickMapAtOffset } from '../support/helpers/map-helpers.js'
-import { FEATURE_CONTEXT_MENU, FEATURE_CONTEXT_MENU_ITEM } from '../support/helpers/selectors.js'
+import { FEATURE_CONTEXT_MENU, FEATURE_CONTEXT_MENU_ITEM, MAP_TOAST } from '../support/helpers/selectors.js'
 
 When('地図の中央を右クリックする', async function (this: CustomWorld) {
   await rightClickMapAtOffset(this.page, 0, 0)
@@ -29,4 +29,9 @@ When('コンテキストメニューの {string} をクリックする', async f
   const item = this.page.locator(FEATURE_CONTEXT_MENU_ITEM, { hasText: text })
   await item.click()
   await this.page.waitForTimeout(200)
+})
+
+Then('{string} というトースト通知が表示される', async function (this: CustomWorld, text: string) {
+  const toast = this.page.locator(MAP_TOAST, { hasText: text })
+  await expect(toast).toBeVisible()
 })

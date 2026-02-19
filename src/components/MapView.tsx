@@ -12,6 +12,7 @@ import { createPointFeature, createPathFeature, createDraftFeatureCollection, ne
 import { getFeatureCenter } from '../lib/feature-center'
 import { parseCSV } from '../lib/csv-helpers'
 import { mergeUserProperties } from '../lib/property-helpers'
+import './MapView.css'
 
 export type FeatureCollection = GeoJSON.FeatureCollection
 
@@ -51,6 +52,8 @@ export const MapView: React.FC = () => {
   const [selectedFeatureId, setSelectedFeatureId] = useState<string | null>(null)
   const [highlightedPanelFeatureId, setHighlightedPanelFeatureId] = useState<string | null>(null)
   const [contextMenu, setContextMenu] = useState<{ feature: GeoJSON.Feature; x: number; y: number } | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const featuresRef = useRef(features)
   featuresRef.current = features
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -400,6 +403,15 @@ export const MapView: React.FC = () => {
     map.flyTo({ center: [lng, lat], zoom: 16 })
   }, [map])
 
+  const handleCopy = useCallback((result: { message: string; type: 'success' | 'error' }) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast(result)
+    toastTimerRef.current = setTimeout(() => {
+      setToast(null)
+      toastTimerRef.current = null
+    }, 1500)
+  }, [])
+
   const handleImportGeoJSON = useCallback((importedFeatures: GeoJSON.Feature[], mode: 'replace' | 'merge') => {
     if (mode === 'replace') {
       if (highlightTimerRef.current) {
@@ -459,7 +471,14 @@ export const MapView: React.FC = () => {
           feature={contextMenu.feature}
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
+          onCopy={handleCopy}
         />
+      )}
+
+      {toast && (
+        <div className={`map-toast map-toast--${toast.type}`}>
+          {toast.message}
+        </div>
       )}
     </div>
   )
