@@ -3,13 +3,16 @@ import { getFeatureCenter } from '../lib/feature-center'
 import { getUserProperties } from '../lib/property-helpers'
 import './FeatureContextMenu.css'
 
+type CopyResult = { message: string; type: 'success' | 'error' }
+
 type FeatureContextMenuProps = {
   feature: GeoJSON.Feature
   position: { x: number; y: number }
   onClose: () => void
+  onCopy: (result: CopyResult) => void
 }
 
-export function FeatureContextMenu({ feature, position, onClose }: FeatureContextMenuProps) {
+export function FeatureContextMenu({ feature, position, onClose, onCopy }: FeatureContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -33,14 +36,24 @@ export function FeatureContextMenu({ feature, position, onClose }: FeatureContex
     const center = getFeatureCenter(feature)
     if (!center) return
     const text = `${center[1]}, ${center[0]}`
-    await navigator.clipboard.writeText(text)
+    try {
+      await navigator.clipboard.writeText(text)
+      onCopy({ message: 'コピーしました', type: 'success' })
+    } catch {
+      onCopy({ message: 'コピーに失敗しました', type: 'error' })
+    }
     onClose()
   }
 
   const copyProperties = async () => {
     const userProps = getUserProperties(feature.properties)
     const text = JSON.stringify(userProps, null, 2)
-    await navigator.clipboard.writeText(text)
+    try {
+      await navigator.clipboard.writeText(text)
+      onCopy({ message: 'コピーしました', type: 'success' })
+    } catch {
+      onCopy({ message: 'コピーに失敗しました', type: 'error' })
+    }
     onClose()
   }
 
