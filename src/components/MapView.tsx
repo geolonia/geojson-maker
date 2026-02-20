@@ -414,6 +414,8 @@ export const MapView: React.FC = () => {
   // Undo/Redo キーボードショートカット
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) return
       const isMac = /mac/i.test(navigator.userAgent)
       const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey
       if (!ctrlOrCmd) return
