@@ -102,6 +102,9 @@ export const MapView: React.FC = () => {
     }))
   }, [])
 
+  // 単一選択時のみ頂点編集を有効にする（マルチ選択時は無効）
+  const selectedFeatureId = selectedFeatureIds.size === 1 ? [...selectedFeatureIds][0] : null
+
   const { justDraggedRef } = useVertexEditing({
     map,
     features,
